@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Moneymaker - Completo</title>
+<style>
+/* ---------- RESET / LAYOUT ---------- */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:"Poppins",sans-serif;background:linear-gradient(135deg,#0a0f1a,#112240);color:#fff;line-height:1.4}
+.container{max-width:920px;margin:28px auto;padding:18px;border-radius:12px;background:rgba(0,0,0,0.45);box-shadow:0 8px 40px rgba(0,0,0,0.6)}
+.card{background:rgba(255,255,255,0.03);padding:14px;border-radius:10px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,0.25)}
+h1,h2,h3{color:#1e90ff;text-align:center;margin-bottom:8px}
+.muted{color:rgba(255,255,255,0.75);font-size:13px}
+.row{display:flex;gap:12px;align-items:center}
+.col{flex:1}
+input,select,textarea,button{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;font-size:15px}
+input,select,textarea{background:rgba(255,255,255,0.03);color:#fff}
+button{background:linear-gradient(90deg,#1e90ff,#00c9ff);color:#fff;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(30,144,255,0.08)}
+button.small{padding:8px;font-size:14px;border-radius:6px}
+.btn-danger{background:#ff4d4d}
+.hidden{display:none}
+.table{width:100%;border-collapse:collapse;margin-top:8px}
+.table th,.table td{padding:8px;border:1px solid rgba(0,200,255,0.07);text-align:left;font-size:14px;color:#fff}
+.vip-card{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid rgba(30,144,255,0.15);margin-bottom:8px}
+.small-muted{font-size:12px;color:rgba(255,255,255,0.6)}
+.center{text-align:center}
+.footer{margin-top:16px;text-align:center;color:rgba(255,255,255,0.6);font-size:13px}
+.link{color:#00ffcc;text-decoration:none}
+@media(max-width:800px){.row{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+
+  <!-- LOGIN -->
+  <div id="loginView" class="card">
+    <h1>💰 Moneymaker</h1>
+    <h3>Entrar</h3>
+    <input id="loginUser" placeholder="Número (ex: 936507278) ou Usuário" />
+    <input id="loginPass" type="password" placeholder="Senha" />
+    <div class="row">
+      <div class="col"><button id="loginBtn">Entrar</button></div>
+      <div style="width:10px"></div>
+      <div style="width:140px"><button class="small" id="goRegister">Cadastrar</button></div>
+    </div>
+    <p class="muted center">Suporte: <a class="link" href="https://wa.me/244934275831" target="_blank">WhatsApp +244 934 275 831</a></p>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerView" class="card hidden">
+    <h2>Cadastro</h2>
+    <input id="regUser" placeholder="Usuário (único)" />
+    <input id="regPass" type="password" placeholder="Senha" />
+    <input id="regRef" placeholder="Código de referência (opcional)" />
+    <div class="row">
+      <div class="col"><button id="registerBtn">Criar Conta</button></div>
+      <div style="width:10px"></div>
+      <div style="width:140px"><button class="small" id="goLogin">Voltar</button></div>
+    </div>
+    <p class="muted">Ao criar a conta receberás <b>1000 Kz</b> de bônus inicial.</p>
+  </div>
+
+  <!-- USER DASHBOARD -->
+  <div id="dashboardView" class="hidden">
+    <div class="card">
+      <div class="row">
+        <div class="col">
+          <h3 id="welcomeUser">Olá, Usuario</h3>
+          <p class="muted">Saldo: <b id="balanceDisplay">0 Kz</b></p>
+          <p class="muted">VIPs ativos: <span id="vipCount">0</span></p>
+        </div>
+        <div style="width:220px">
+          <button id="openDeposit" class="small">💵 Depósito</button>
+          <button id="openWithdraw" class="small">💳 Saque</button>
+          <button id="openVip" class="small">⭐ Comprar VIP</button>
+          <button id="openHistory" class="small">📜 Histórico</button>
+          <button id="logoutBtn" class="small btn-danger">Sair</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>VIPs Ativos</h3>
+      <div id="userVips"></div>
+    </div>
+  </div>
+
+  <!-- DEPOSIT FORM -->
+  <div id="depositView" class="card hidden">
+    <h3>Depósito</h3>
+    <input id="depositAmount" type="number" placeholder="Valor (Kz)" />
+    <select id="depositType"><option value="referencia">Referência</option></select>
+    <p class="small-muted">Entidade: <b>10116</b> &nbsp; | &nbsp; Referência: <b>936507278</b></p>
+    <input id="depositFile" type="file" accept="image/*,application/pdf" />
+    <div class="row">
+      <div class="col"><button id="sendDeposit">Enviar Depósito</button></div>
+      <div style="width:10px"></div>
+      <div style="width:140px"><button class="small" id="cancelDeposit">Cancelar</button></div>
+    </div>
+    <p class="muted small-muted">Após envio, o depósito ficará pendente até aprovação do administrador.</p>
+  </div>
+
+  <!-- WITHDRAW FORM -->
+  <div id="withdrawView" class="card hidden">
+    <h3>Saque</h3>
+    <input id="withdrawAmount" type="number" placeholder="Valor (Kz)" />
+    <input id="withdrawName" placeholder="Nome do Titular" />
+    <input id="withdrawIban" placeholder="IBAN (21 dígitos)" />
+    <p class="muted">Taxa: <b>15%</b> → Você receberá: <b id="withdrawNet">0 Kz</b></p>
+    <div class="row">
+      <div class="col"><button id="sendWithdraw">Solicitar Saque</button></div>
+      <div style="width:10px"></div>
+      <div style="width:140px"><button class="small" id="cancelWithdraw">Cancelar</button></div>
+    </div>
+    <p class="muted small-muted">Horário permitido para solicitações: <b>09:00 - 18:00</b>. O valor será descontado imediatamente; a aprovação final fica ao administrador.</p>
+  </div>
+
+  <!-- VIP LIST / BUY -->
+  <div id="vipView" class="card hidden">
+    <h3>Comprar VIP</h3>
+    <div id="vipList"></div>
+    <div class="row">
+      <div class="col"><button id="closeVip">Fechar</button></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="historyView" class="card hidden">
+    <h3>Histórico</h3>
+    <div id="historyList" style="max-height:360px;overflow:auto"></div>
+    <div class="row">
+      <div class="col"><button id="closeHistory">Fechar</button></div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminView" class="hidden">
+    <div class="card">
+      <h2>Painel Administrativo</h2>
+      <div class="row">
+        <div class="col">
+          <h3>Depósitos Pendentes</h3>
+          <div id="pendingDepositsList"></div>
+        </div>
+        <div class="col">
+          <h3>Saques Pendentes</h3>
+          <div id="pendingWithdrawsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Ferramentas Admin</h3>
+      <div class="row">
+        <div class="col"><input id="adminUserTarget" placeholder="Usuário alvo para ações (ex: 936507278)"></div>
+        <div style="width:140px"><input id="adminAddAmount" placeholder="Kz" type="number"></div>
+        <div style="width:160px"><button id="adminAddSaldo">Adicionar Saldo</button></div>
+      </div>
+      <div class="row">
+        <div class="col"><button id="adminCancelUser" class="btn-danger">Cancelar Conta</button></div>
+        <div style="width:160px"><button id="adminLogout" class="small">Sair Admin</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Histórico Global</h3>
+      <div id="adminHistoryList" style="max-height:300px;overflow:auto"></div>
+    </div>
+  </div>
+
+  <p class="footer">Moneymaker • Desenvolvido para ti • Dados persistidos via JSONBin</p>
+</div>
+
+<script>
+/* ================== CONFIG JSONBIN ================== */
+const BIN_ID = "69123dc5ae596e708f510534";
+const API_KEY = "6912370a43b1c97be9a547b8";
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
+const BIN_UPDATE_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+/* ================== STATE ================== */
+let users = {};                // users[userId] = { pass, saldo, vips:[], history:[], lastIncomeTime, role }
+let pendingDeposits = [];      // array of deposit requests
+let pendingWithdraws = [];     // array of withdraw requests
+let historyAll = [];           // global action log
+let currentUser = null;        // logged in user id (or admin id)
+const VIPS = [
+  {nome:"Prata", preco:5000},
+  {nome:"Ouro", preco:15000},
+  {nome:"Diamante", preco:25000},
+  {nome:"Safira", preco:30000},
+  {nome:"Rubi", preco:44000},
+  {nome:"💎 Prata", preco:60000},
+  {nome:"💎 Ouro", preco:70000},
+  {nome:"💎 Diamante", preco:80000},
+  {nome:"💎 Safira", preco:120000}
+];
+const ADMIN_USER = "936507278";
+const ADMIN_PASS_HASH = "9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0"; // sha256("0000")
+
+/* ================== UTIL ================== */
+async function sha256Hex(str){
+  const buf = new TextEncoder().encode(str);
+  const h = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function uid(prefix='id'){return prefix+Math.random().toString(36).slice(2,9)}
+function now(){return Date.now()}
+
+async function loadAll(){
+  try{
+    const res = await fetch(BIN_URL, { headers: {"X-Master-Key": API_KEY} });
+    const json = await res.json();
+    if(json && json.record){
+      users = json.record.users || {};
+      pendingDeposits = json.record.pendingDeposits || [];
+      pendingWithdraws = json.record.pendingWithdraws || [];
+      historyAll = json.record.historyAll || [];
+      console.log("Dados carregados do JSONBin.");
+    } else {
+      console.log("JSONBin vazio — iniciando com estado novo.");
+      users = {};
+      pendingDeposits = [];
+      pendingWithdraws = [];
+      historyAll = [];
+    }
+  }catch(e){
+    console.error("Erro ao carregar dados JSONBin:", e);
+    users = users || {};
+    pendingDeposits = pendingDeposits || [];
+    pendingWithdraws = pendingWithdraws || [];
+    historyAll = historyAll || [];
+  }
+}
+
+async function saveAll(){
+  try{
+    await fetch(BIN_UPDATE_URL, {
+      method: "PUT",
+      headers: {"Content-Type":"application/json","X-Master-Key":API_KEY},
+      body: JSON.stringify({ users, pendingDeposits, pendingWithdraws, historyAll })
+    });
+    console.log("Dados salvos no JSONBin.");
+  }catch(e){
+    console.error("Erro ao salvar no JSONBin:", e);
+  }
+}
+
+/* ================== VIEWS CONTROL ================== */
+function hideAllViews(){
+  document.querySelectorAll('#loginView,#registerView,#dashboardView,#depositView,#withdrawView,#vipView,#historyView,#adminView').forEach(x=>x.classList.add('hidden'))
+}
+function showLogin(){ hideAllViews(); document.getElementById('loginView').classList.remove('hidden') }
+function showRegister(){ hideAllViews(); document.getElementById('registerView').classList.remove('hidden') }
+function showDashboard(){ hideAllViews(); document.getElementById('dashboardView').classList.remove('hidden'); updateDashboard() }
+function showDeposit(){ hideAllViews(); document.getElementById('depositView').classList.remove('hidden'); document.getElementById('depositAmount').value=''; document.getElementById('depositFile').value=''}
+function showWithdraw(){ hideAllViews(); document.getElementById('withdrawView').classList.remove('hidden'); document.getElementById('withdrawAmount').value=''; document.getElementById('withdrawName').value=''; document.getElementById('withdrawIban').value=''; document.getElementById('withdrawNet').innerText='0 Kz'}
+function showVip(){ hideAllViews(); document.getElementById('vipView').classList.remove('hidden'); renderVipList() }
+function showHistory(){ hideAllViews(); document.getElementById('historyView').classList.remove('hidden'); renderUserHistory() }
+function showAdmin(){ hideAllViews(); document.getElementById('adminView').classList.remove('hidden'); renderAdmin() }
+
+/* ================== AUTH / SESSION ================== */
+async function registerHandler(){
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPass').value.trim();
+  const ref = document.getElementById('regRef').value.trim();
+  if(!u || !p){ alert("Preenche usuário e senha!"); return; }
+  if(users[u]){ alert("Usuário já existe!"); return; }
+  users[u] = {
+    pass: p,
+    saldo: 1000,
+    vips: [],
+    history: [`Conta criada - bônus inicial 1000 Kz (${new Date().toLocaleString()})`],
+    lastIncomeCheck: Date.now(),
+    createdAt: Date.now(),
+    role: "user"
+  };
+  if(ref && users[ref]){
+    users[ref].saldo = (users[ref].saldo||0) + 100;
+    users[ref].history.push(`Bônus de indicação 100 Kz (referiu ${u}) - ${new Date().toLocaleString()}`);
+    historyAll.push({type:'referral', user:ref, details:`Referiu ${u}`, date:Date.now()});
+  }
+  await saveAll();
+  alert("Conta criada com sucesso! Bônus inicial: 1000 Kz");
+  showLogin();
+}
+
+async function loginHandler(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if(u === ADMIN_USER){
+    const hash = await sha256Hex(p);
+    if(hash === ADMIN_PASS_HASH){
+      currentUser = ADMIN_USER;
+      historyAll.push({type:'admin_login', user:ADMIN_USER, details:'Admin entrou', date:Date.now()});
+      showAdmin();
+      return;
+    } else { alert("Usuário ou senha incorretos!"); return; }
+  }
+  if(!users[u] || users[u].pass !== p){ alert("Usuário ou senha incorretos!"); return; }
+  // accumulate vip income before showing
+  accumulateVipIncome(u);
+  users[u].lastIncomeCheck = Date.now();
+  users[u].history.push(`Login - ${new Date().toLocaleString()}`);
+  currentUser = u;
+  await saveAll();
+  showDashboard();
+}
+
+/* ================== DASHBOARD / PROFILE ================== */
+function updateDashboard(){
+  if(!currentUser || currentUser===ADMIN_USER) return;
+  document.getElementById('welcomeUser').innerText = `Olá, ${currentUser}`;
+  document.getElementById('balanceDisplay').innerText = `${Number(users[currentUser].saldo||0).toFixed(2)} Kz`;
+  renderVipsForUser();
+}
+
+/* ================== VIPS ================== */
+function renderVipList(){
+  const el = document.getElementById('vipList');
+  el.innerHTML = '';
+  VIPS.forEach(v=>{
+    const wrap = document.createElement('div');
+    wrap.className = "vip-card";
+    wrap.innerHTML = `<div><b>${v.nome}</b><div class="muted">${v.preco.toLocaleString()} Kz</div><div class="small-muted">Rendimento diário: 20%</div></div>
+      <div style="width:140px"><button onclick="buyVip('${v.nome}',${v.preco})">Comprar</button></div>`;
+    el.appendChild(wrap);
+  });
+}
+async function buyVip(nome, preco){
+  if(!currentUser || currentUser===ADMIN_USER){ alert("Apenas usuários conseguem comprar VIPs."); return; }
+  const u = users[currentUser];
+  if(u.saldo < preco){ alert("Saldo insuficiente!"); return; }
+  // deduct
+  u.saldo -= preco;
+  // add vip object: nome, start, expiry, lastIncomeTime, active
+  const start = Date.now();
+  const expiry = start + 60*24*60*60*1000; // 60 days
+  u.vips.push({id: uid('vip_'), nome, preco, start, expiry, lastIncomeTime: start, active: true});
+  u.history.push(`Comprou VIP ${nome} por ${preco.toLocaleString()} Kz - ${new Date().toLocaleString()}`);
+  historyAll.push({type:'vip_purchase', user:currentUser, details:`VIP ${nome} comprado ${preco} Kz`, date:Date.now()});
+  await saveAll();
+  updateDashboard();
+  alert(`VIP ${nome} comprado com sucesso!`);
+}
+
+/* accumulate VIP income for a given user - safe: called at login & admin actions */
+function accumulateVipIncome(username){
+  if(!users[username]) return;
+  const u = users[username];
+  if(!u.vips || u.vips.length===0) return;
+  const nowTime = Date.now();
+  let totalIncome = 0;
+  u.vips.forEach(v=>{
+    if(!v.active) return;
+    const vipSpec = VIPS.find(x=>x.nome===v.nome);
+    if(!vipSpec) return;
+    // compute time window up to expiry
+    const last = v.lastIncomeTime || v.start;
+    const to = Math.min(nowTime, v.expiry);
+    if(to <= last) return;
+    const seconds = (to - last) / 1000;
+    const dailyIncome = vipSpec.preco * 0.20; // 20% per 24h
+    const income = dailyIncome * (seconds / 86400);
+    if(income > 0){
+      totalIncome += income;
+      v.lastIncomeTime = to;
+      // record per VIP income event
+      u.history.push(`Rendimento VIP ${v.nome}: +${income.toFixed(2)} Kz (${new Date().toLocaleString()})`);
+      historyAll.push({type:'vip_income', user:username, details:`VIP ${v.nome} renda ${income.toFixed(2)} Kz`, date:Date.now()});
+    }
+    // check expiry
+    if(Date.now() > v.expiry){ v.active = false; u.history.push(`VIP ${v.nome} expirado em ${new Date(v.expiry).toLocaleDateString()}`); }
+  });
+  if(totalIncome>0){
+    u.saldo = (u.saldo||0) + totalIncome;
+    saveAll();
+  }
+}
+
+/* ================== DEPOSITS ================== */
+async function sendDepositHandler(){
+  if(!currentUser || currentUser===ADMIN_USER){ alert("Faz login como usuário antes de depositar."); return; }
+  const amount = Number(document.getElementById('depositAmount').value);
+  if(!amount || amount <= 0){ alert("Insere um valor válido."); return; }
+  const fileInput = document.getElementById('depositFile');
+  const file = fileInput.files[0];
+  if(!file){ alert("Anexa o comprovativo (imagem ou PDF)."); return; }
+
+  // read file as dataURL (simulado armazenamento)
+  const fr = new FileReader();
+  fr.onload = async () => {
+    const fileData = fr.result; // base64 dataURL
+    const id = uid('dep_');
+    const depositObj = {
+      id,
+      user: currentUser,
+      amount,
+      method: document.getElementById('depositType').value,
+      entidade: "10116",
+      referencia: "936507278",
+      fileData,
+      status: "pending",
+      createdAt: Date.now()
+    };
+    pendingDeposits.push(depositObj);
+    users[currentUser].history.push(`Depósito solicitado: ${amount.toLocaleString()} Kz (pendente) - ${new Date().toLocaleString()}`);
+    historyAll.push({type:'deposit_request', user:currentUser, details:`Depósito ${amount} pendente`, date:Date.now(), id});
+    await saveAll();
+    alert("Depósito enviado e está pendente de aprovação pelo administrador.");
+    showDashboard();
+  };
+  fr.readAsDataURL(file);
+}
+
+/* ================== WITHDRAWS ================== */
+function updateWithdrawNet(){
+  const val = Number(document.getElementById('withdrawAmount').value) || 0;
+  const fee = val * 0.15;
+  const net = val - fee;
+  document.getElementById('withdrawNet').innerText = `${net.toFixed(2)} Kz (taxa ${fee.toFixed(2)} Kz)`;
+}
+document.getElementById('withdrawAmount')?.addEventListener?.('input', updateWithdrawNet);
+
+async function sendWithdrawHandler(){
+  if(!currentUser || currentUser===ADMIN_USER){ alert("Faz login como usuário antes de solicitar saque."); return; }
+  const amount = Number(document.getElementById('withdrawAmount').value);
+  const name = document.getElementById('withdrawName').value.trim();
+  const iban = document.getElementById('withdrawIban').value.trim();
+  if(!amount || amount <= 0){ alert("Insere um valor válido."); return; }
+  if(!name){ alert("Insere o nome do titular."); return; }
+  if(!/^\d{21}$/.test(iban)){ alert("IBAN inválido. Deve conter 21 dígitos numéricos."); return; }
+
+  // check time window
+  const d = new Date();
+  const hour = d.getHours();
+  if(hour < 9 || hour > 18){ alert("Saque permitido apenas entre 09:00 e 18:00."); return; }
+
+  const u = users[currentUser];
+  if(u.saldo < amount){ alert("Saldo insuficiente."); return; }
+
+  // deduct immediately
+  u.saldo -= amount;
+  const fee = +(amount * 0.15);
+  const net = +(amount - fee);
+  const id = uid('wd_');
+  const req = {
+    id, user: currentUser, amount, fee, net, name, iban,
+    status: "pending", createdAt: Date.now()
+  };
+  pendingWithdraws.push(req);
+  u.history.push(`Saque solicitado: ${amount.toFixed(2)} Kz (taxa ${fee.toFixed(2)} Kz). Status: pendente.`);
+  historyAll.push({type:'withdraw_request', user:currentUser, details:`Saque ${amount} pendente`, date:Date.now(), id});
+  await saveAll();
+  alert(`Saque solicitado. Valor líquido: ${net.toFixed(2)} Kz. Fica pendente para aprovação do admin.`);
+  showDashboard();
+}
+
+/* ================== HISTORY (USER) ================== */
+function renderUserHistory(){
+  const el = document.getElementById('historyList'); el.innerHTML = '';
+  if(!currentUser || currentUser===ADMIN_USER){ el.innerHTML = '<div class="muted">Nenhum histórico para mostrar.</div>'; return; }
+  const hist = users[currentUser].history || [];
+  if(hist.length===0){ el.innerHTML = '<div class="muted">Nenhum histórico</div>'; return; }
+  hist.slice().reverse().forEach(item=>{
+    const d = document.createElement('div'); d.className='card'; d.innerText = item; el.appendChild(d);
+  });
+}
+
+/* ================== RENDER USER VIPS ---------------- */
+function renderVipsForUser(){
+  const el = document.getElementById('userVips'); el.innerHTML='';
+  const u = users[currentUser];
+  if(!u || !u.vips || u.vips.length===0){ el.innerHTML = '<div class="muted">Nenhum VIP ativo</div>'; return; }
+  u.vips.forEach(v=>{
+    const expiry = new Date(v.expiry);
+    const wrapper = document.createElement('div'); wrapper.className='vip-card';
+    wrapper.innerHTML = `<div><b>${v.nome}</b><div class="muted">Comprado: ${new Date(v.start).toLocaleDateString()} - Validade: ${expiry.toLocaleDateString()}</div></div>
+      <div class="small-muted">Ativo: ${v.active? 'Sim':'Não'}</div>`;
+    el.appendChild(wrapper);
+  });
+}
+
+/* ================== ADMIN RENDER / ACTIONS ================== */
+function renderAdmin(){
+  // pending deposits
+  const pdEl = document.getElementById('pendingDepositsList'); pdEl.innerHTML='';
+  if(pendingDeposits.length===0) pdEl.innerHTML='<div class="muted">Nenhum depósito pendente</div>';
+  pendingDeposits.forEach(dep=>{
+    const div = document.createElement('div'); div.className='card';
+    div.innerHTML = `<b>${dep.user}</b> - ${dep.amount.toLocaleString()} Kz - <span class="small-muted">${new Date(dep.createdAt).toLocaleString()}</span>
+      <div style="margin-top:8px"><button onclick="adminApproveDeposit('${dep.id}')" class="small">Aprovar</button>
+      <button onclick="adminRejectDeposit('${dep.id}')" class="small btn-danger">Rejeitar</button>
+      <button onclick="adminViewFile('${dep.id}')" class="small">Ver comprovativo</button></div>`;
+    pdEl.appendChild(div);
+  });
+
+  // pending withdraws
+  const pwEl = document.getElementById('pendingWithdrawsList'); pwEl.innerHTML='';
+  if(pendingWithdraws.length===0) pwEl.innerHTML='<div class="muted">Nenhum saque pendente</div>';
+  pendingWithdraws.forEach(wd=>{
+    const div = document.createElement('div'); div.className='card';
+    div.innerHTML = `<b>${wd.user}</b> - ${wd.amount.toLocaleString()} Kz - Taxa: ${wd.fee.toLocaleString()} Kz - Recebe: ${wd.net.toLocaleString()} Kz<br>
+      Titular: ${wd.name} - IBAN: ${wd.iban} <div style="margin-top:8px"><button onclick="adminApproveWithdraw('${wd.id}')" class="small">Aprovar</button>
+      <button onclick="adminRejectWithdraw('${wd.id}')" class="small btn-danger">Rejeitar</button></div>`;
+    pwEl.appendChild(div);
+  });
+
+  // admin history
+  const ah = document.getElementById('adminHistoryList'); ah.innerHTML='';
+  if(historyAll.length===0){ ah.innerHTML='<div class="muted">Nenhum registo</div>'; return; }
+  historyAll.slice().reverse().forEach(h=>{
+    const div = document.createElement('div'); div.className='card'; div.innerText = `${new Date(h.date).toLocaleString()} — ${h.type} — ${h.user || ''} — ${h.details || ''}`; ah.appendChild(div);
+  });
+}
+
+/* Admin view file (show deposit file in new tab) */
+function adminViewFile(depId){
+  const dep = pendingDeposits.find(d=>d.id===depId);
+  if(!dep || !dep.fileData){ alert("Ficheiro não encontrado."); return; }
+  // open dataURL in new tab
+  const w = window.open();
+  w.document.write(`<title>Comprovativo</title><iframe src="${dep.fileData}" style="width:100%;height:100vh;border:none"></iframe>`);
+}
+
+/* Approve deposit */
+async function adminApproveDeposit(depId){
+  const idx = pendingDeposits.findIndex(d=>d.id===depId);
+  if(idx<0) { alert("Depósito não encontrado"); return; }
+  const dep = pendingDeposits[idx];
+  // credit user's account
+  if(!users[dep.user]){ alert("Conta do usuário não encontrada."); return; }
+  users[dep.user].saldo = (users[dep.user].saldo||0) + Number(dep.amount);
+  users[dep.user].history.push(`Depósito aprovado: +${Number(dep.amount).toLocaleString()} Kz - ${new Date().toLocaleString()}`);
+  historyAll.push({type:'deposit_approved', user:dep.user, details:`Depósito ${dep.amount} aprovado (id:${dep.id})`, date:Date.now()});
+  // remove pending
+  pendingDeposits.splice(idx,1);
+  await saveAll();
+  renderAdmin();
+  alert("Depósito aprovado e crédito realizado ao usuário.");
+}
+
+/* Reject deposit */
+async function adminRejectDeposit(depId){
+  const idx = pendingDeposits.findIndex(d=>d.id===depId);
+  if(idx<0) { alert("Depósito não encontrado"); return; }
+  const dep = pendingDeposits[idx];
+  users[dep.user].history.push(`Depósito rejeitado: ${dep.amount} Kz - ${new Date().toLocaleString()}`);
+  historyAll.push({type:'deposit_rejected', user:dep.user, details:`Depósito ${dep.amount} rejeitado (id:${dep.id})`, date:Date.now()});
+  pendingDeposits.splice(idx,1);
+  await saveAll();
+  renderAdmin();
+  alert("Depósito rejeitado.");
+}
+
+/* Approve withdraw */
+async function adminApproveWithdraw(wdId){
+  const idx = pendingWithdraws.findIndex(w=>w.id===wdId);
+  if(idx<0){ alert("Saque não encontrado."); return; }
+  const wd = pendingWithdraws[idx];
+  // mark approved
+  historyAll.push({type:'withdraw_approved', user:wd.user, details:`Saque ${wd.amount} aprovado (id:${wd.id})`, date:Date.now()});
+  users[wd.user].history.push(`Saque aprovado: ${wd.amount.toFixed(2)} Kz (líquido ${wd.net.toFixed(2)} Kz) - ${new Date().toLocaleString()}`);
+  // Here, money was deducted at request time already.
+  pendingWithdraws.splice(idx,1);
+  await saveAll();
+  renderAdmin();
+  alert("Saque aprovado.");
+}
+
+/* Reject withdraw -> refund */
+async function adminRejectWithdraw(wdId){
+  const idx = pendingWithdraws.findIndex(w=>w.id===wdId);
+  if(idx<0){ alert("Saque não encontrado."); return; }
+  const wd = pendingWithdraws[idx];
+  // refund full amount to user
+  if(users[wd.user]){
+    users[wd.user].saldo = (users[wd.user].saldo||0) + Number(wd.amount);
+    users[wd.user].history.push(`Saque rejeitado: ${wd.amount.toFixed(2)} Kz reembolsado - ${new Date().toLocaleString()}`);
+  }
+  historyAll.push({type:'withdraw_rejected', user:wd.user, details:`Saque ${wd.amount} rejeitado (id:${wd.id})`, date:Date.now()});
+  pendingWithdraws.splice(idx,1);
+  await saveAll();
+  renderAdmin();
+  alert("Saque rejeitado e valor reembolsado ao usuário.");
+}
+
+/* ================== ADMIN ACTIONS: add saldo, cancel user ================== */
+async function adminAddSaldo(){
+  const target = document.getElementById('adminUserTarget').value.trim();
+  const amount = Number(document.getElementById('adminAddAmount').value);
+  if(!target || !users[target]){ alert("Usuário alvo inválido."); return; }
+  if(!amount || amount <= 0){ alert("Valor inválido."); return; }
+  users[target].saldo = (users[target].saldo||0) + amount;
+  users[target].history.push(`Crédito manual pelo Admin: +${amount.toLocaleString()} Kz - ${new Date().toLocaleString()}`);
+  historyAll.push({type:'admin_add_saldo', user:target, details:`Admin adicionou ${amount} Kz`, date:Date.now()});
+  await saveAll();
+  renderAdmin();
+  alert("Saldo adicionado.");
+}
+
+async function adminCancelUser(){
+  const target = document.getElementById('adminUserTarget').value.trim();
+  if(!target || !users[target]){ alert("Usuário alvo inválido."); return; }
+  if(!confirm(`Tens a certeza que queres cancelar a conta ${target}? Esta ação é irreversível.`)) return;
+  // Move user's history to global record (optional), then delete
+  historyAll.push({type:'admin_cancel_user', user:target, details:`Conta cancelada pelo admin`, date:Date.now()});
+  delete users[target];
+  await saveAll();
+  renderAdmin();
+  alert("Conta cancelada.");
+}
+
+/* ================== EVENT LISTENERS / HOOKS ================== */
+document.getElementById('goRegister').addEventListener('click', showRegister);
+document.getElementById('goLogin').addEventListener('click', showLogin);
+document.getElementById('registerBtn').addEventListener('click', registerHandler);
+document.getElementById('loginBtn').addEventListener('click', loginHandler);
+document.getElementById('logoutBtn').addEventListener('click', ()=>{ logout(); });
+
+function logout(){
+  currentUser = null;
+  showLogin();
+}
+
+/* Deposit handlers */
+document.getElementById('openDeposit').addEventListener('click', showDeposit);
+document.getElementById('cancelDeposit').addEventListener('click', showDashboard);
+document.getElementById('sendDeposit').addEventListener('click', sendDepositHandler);
+
+/* Withdraw handlers */
+document.getElementById('openWithdraw').addEventListener('click', showWithdraw);
+document.getElementById('cancelWithdraw').addEventListener('click', showDashboard);
+document.getElementById('withdrawAmount').addEventListener('input', updateWithdrawNet);
+document.getElementById('sendWithdraw').addEventListener('click', sendWithdrawHandler);
+
+/* VIP handlers */
+document.getElementById('openVip').addEventListener('click', showVip);
+document.getElementById('closeVip').addEventListener('click', showDashboard);
+
+/* History handlers */
+document.getElementById('openHistory').addEventListener('click', showHistory);
+document.getElementById('closeHistory').addEventListener('click', showDashboard);
+
+/* Admin handlers */
+document.getElementById('adminAddSaldo').addEventListener('click', adminAddSaldo);
+document.getElementById('adminCancelUser').addEventListener('click', adminCancelUser);
+document.getElementById('adminLogout').addEventListener('click', ()=>{ currentUser = null; showLogin(); });
+
+/* ================== SEND / RECEIVE: deposit & withdraw impl. ================== */
+
+/* deposit send impl (reads file as base64 then saves pending) */
+function sendDepositHandler(){
+  if(!currentUser || currentUser===ADMIN_USER){ alert("Faz login com uma conta de usuário antes de depositar."); return; }
+  const amount = Number(document.getElementById('depositAmount').value || 0);
+  if(!amount || amount <= 0){ alert("Insere um valor válido."); return; }
+  const fileInput = document.getElementById('depositFile');
+  const file = fileInput.files[0];
+  if(!file){ alert("Anexa um comprovativo (imagem ou PDF)."); return; }
+
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    const fileData = e.target.result; // base64 dataurl
+    const dep = {
+      id: uid('dep_'),
+      user: currentUser,
+      amount,
+      method: document.getElementById('depositType').value,
+      entidade: "10116",
+      referencia: "936507278",
+      fileData,
+      status: "pending",
+      createdAt: Date.now()
+    };
+    pendingDeposits.push(dep);
+    users[currentUser].history.push(`Depósito solicitado: ${amount.toLocaleString()} Kz (pendente) - ${new Date().toLocaleString()}`);
+    historyAll.push({type:'deposit_requested', user:currentUser, details:`Depósito ${amount} pendente`, date:Date.now(), id:dep.id});
+    await saveAll();
+    alert("Depósito enviado. Aguarda aprovação do admin.");
+    showDashboard();
+  };
+  reader.readAsDataURL(file);
+}
+
+/* withdraw send impl already defined above as sendWithdrawHandler (duplicated name resolved) */
+// Note: we already defined sendWithdrawHandler earlier; ensure it's wired
+// (event listener set above)
+
+/* ================== INITIAL LOAD ================== */
+(async function init(){
+  await loadAll();
+  // ensure admin key user exists? Admin is not stored in users, it's separate.
+  showLogin();
+})();
+</script>
+</body>
+  </html>
